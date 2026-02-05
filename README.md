@@ -1,70 +1,84 @@
 # 📊 Quant Terminal: HMM + Chronos + FinBERT
 
-Este proyecto es un **Dashboard Cuantitativo de Alto Rendimiento** diseñado para el análisis técnico, predictivo y de sentimiento de activos financieros. Combina arquitecturas de aprendizaje profundo (Deep Learning), modelos probabilísticos de estados ocultos (HMM) y procesamiento de lenguaje natural (NLP) para ofrecer una visión 360° del mercado.
+Este proyecto es un **Dashboard Cuantitativo de Alto Rendimiento** diseñado para el análisis técnico, predictivo y de sentimiento de activos financieros. Combina arquitecturas de aprendizaje profundo (Deep Learning), modelos probabilísticos de estados ocultos (HMM) y procesamiento de lenguaje natural (NLP).
 
 ![Vista Principal del Dashboard](assets/dashboard_main.png)
 
 ---
 
-## 🛠 Arquitectura y Metodología
+## 🛠 Arquitectura y Metodología Detallada
 
-El terminal se basa en tres pilares fundamentales que operan de forma independiente pero integrada:
+Para garantizar la transparencia en los cálculos, este terminal desglosa su metodología en tres capas de procesamiento:
 
-### 1. Detección de Regímenes con HMM (Hidden Markov Models)
-Utiliza la librería `hmmlearn` para segmentar el comportamiento del mercado en tres estados latentes: **Bull**, **Bear** y **Side**.
+### 1. Detección de Regímenes (Hidden Markov Models)
+El modelo HMM segmenta el mercado basándose en la estructura estadística de los datos, no en reglas fijas de analistas.
+
+*   **Variables de Entrada (Features):**
+    *   `log_r`: Retornos Logarítmicos (captura cambios porcentuales continuos).
+    *   `range`: Rango Intra-periodo (High/Low - 1), indicador de volatilidad inmediata.
+    *   `abs_r`: Valor absoluto del retorno (fuerza del movimiento).
+    *   `vol_5`: Volatilidad de corto plazo (Std Dev de 5 periodos).
+*   **Algoritmo:** `GaussianHMM` con 3 componentes. Los estados se entrenan mediante el algoritmo de **Expectation-Maximization (Baum-Welch)**.
+*   **Alineación Automática:** Los estados se mapean automáticamente según el retorno medio:
+    *   **Bear (Bajista):** Estado con el retorno medio más bajo.
+    *   **Bull (Alcista):** Estado con el retorno medio más alto.
+    *   **Side (Lateral):** Estado intermedio.
+*   **Validación Walk-Forward:** El modelo se re-entrena periódicamente (ventana móvil) para adaptarse a cambios estructurales ("Structural Breaks") en el mercado.
+
+### 2. Predicción Probabilística (Chronos)
+**Chronos** es una arquitectura Transformer de Amazon diseñada para tratar las series temporales como un lenguaje.
 
 ![Modelo HMM y Chronos](assets/hmm_chronos.png)
 
-*   **Bull (Alcista):** 🟢 Periodos de retornos positivos y baja volatilidad.
-*   **Bear (Bajista):** 🔴 Periodos de retornos negativos y alta volatilidad.
-*   **Side (Lateral):** 🟡 Periodos de consolidación y equilibrio.
+*   **Metodología:** El precio se cuantiza en tokens y el modelo predice la distribución de probabilidad del siguiente valor.
+*   **Zero-Shot Learning:** No depende de patrones clásicos (como cabeza-hombros); entiende la dinámica temporal intrínseca a gran escala.
+*   **Incertidumbre:** El área sombreada en el gráfico representa las bandas de confianza (cuantiles 10% y 90%). Si las bandas son estrechas, el modelo tiene alta confianza en la trayectoria.
 
-### 2. Predicción de Series Temporales con Chronos
-Implementa **Chronos (Amazon)** para realizar predicciones de *Zero-Shot* tratando los precios como tokens de lenguaje. Proporciona una mediana de predicción y bandas de confianza (cuantiles 0.1 y 0.9).
+### 3. NLP de Grado Institucional (FinBERT)
+Utiliza una red neuronal **BERT (Bidirectional Encoder Representations from Transformers)** pre-entrenada con millones de documentos financieros.
 
-### 3. Análisis de Sentimiento con FinBERT
-Aprovecha un modelo **BERT especializado en Finanzas** para procesar noticias y calcular el **Sentiment Gap** (`pos` - `neg`).
-
----
-
-## 🔬 Deep Analysis: Sentimiento e Indicadores Técnicos
-
-El apartado de **Deep Analysis** permite una confluencia visual entre el pulso del mercado (noticias) y el impulso técnico (Heatmap).
-
-![Análisis Técnico y de Sentimiento](assets/deep_analysis.png)
+*   **Cálculo del Sentiment Gap:** 
+    *   Se extraen las probabilidades para cada clase: `[Positivo, Negativo, Neutral]`.
+    *   $\text{Gap} = (\text{Prob\_Pos} - \text{Prob\_Neg}) \times 100$.
+    *   Un valor de **100** indica optimismo absoluto, **-100** indica pánico absoluto.
 
 ---
 
-## 💡 Casos de Uso y Aplicación Estratégica
+## 🌡️ Transparencia de Indicadores (Heatmap)
 
-Este terminal está diseñado para soportar la toma de decisiones basada en datos:
+El mapa de calor de intensidad utiliza el siguiente set de indicadores para la toma de decisiones:
 
-1.  **Detección de Cambio de Régimen (Swing Trading):** Utilizar el HMM para identificar transiciones de *Side* a *Bull*. Una entrada confirmada por un Sentiment Gap positivo reduce la probabilidad de falsos breakout.
-2.  **Gestión de Riesgo (Hedging):** Al entrar en un régimen *Bear*, el modelo sugiere reducir exposición o buscar activos de cobertura, incluso si los indicadores técnicos de corto plazo muestran rebotes temporales.
-3.  **Identificación de Divergencias:** Si el precio muestra una tendencia *Bull* pero el **FinBERT Sentiment Gap** es fuertemente negativo, el terminal alerta sobre una posible exuberancia no respaldada por fundamentales.
-
----
-
-## ⚠️ Recomendaciones de Uso
-
-*   **Confluencia Técnica:** No tome decisiones basadas en un solo modelo. La señal perfecta ocurre cuando el **HMM Regime**, la **Mediana de Chronos** y el **Heatmap de Intensidad** apuntan en la misma dirección.
-*   **Bandas de Confianza:** Preste especial atención a la anchura de las bandas de Chronos. Bandas muy anchas indican una alta incertidumbre volumétrica; es mejor esperar a que el modelo "estreche" sus proyecciones.
-*   **Temporalidad:** El modelo HMM es más robusto en temporalidades de **1h y 1d** debido al ruido estadístico en marcos menores.
-
----
-
-## 📄 Raw Data y Proyecciones
-
-Transparencia total en los cálculos mediante el acceso a los datos crudos y auditoría de señales.
-
-![Datos y Proyecciones](assets/raw_data.png)
+| Categoría | Indicador | Cálculo Base |
+| :--- | :--- | :--- |
+| **Momentum** | RSI (14) | Índice de Fuerza Relativa (Wilder). |
+| | ROC (12) | Rate of Change de 12 periodos. |
+| | Stochastic K | Oscilador Estocástico (14, 3). |
+| | MACD Hist | Diferencia entre la línea MACD y su señal. |
+| **Volatility** | ATR (14) | Average True Range. |
+| | Realized Vol | Desviación estándar móvil de los retornos. |
+| | BB Width | Ancho de las Bandas de Bollinger (normalizado). |
+| | Parkinson | Volatilidad basada en High/Low (más sensible que la de cierre). |
+| **Trend** | EMA (20) | Media Móvil Exponencial rápida. |
+| | ADX (14) | Average Directional Index (fuerza de la tendencia). |
+| | Price vs EM | Posición del precio respecto a su media. |
+| **Volume** | Vol/MA20 | Volumen actual vs promedio de 20 días. |
+| | OBV Change | Variación del On-Balance Volume. |
+| | Vol Spike | Detección de picos inusuales de volumen. |
 
 ---
 
-## 🚀 Instalación y Uso
+## 💡 Estrategias de Uso y Recomendaciones
+
+*   **Confluencia Técnica:** Busque el "Triple Check": Régimen Bull (HMM) + Proyección alcista (Chronos) + Sentiment Gap > 10 (FinBERT).
+*   **Interpretación del Heatmap:** Un bloque verde uniforme en "Trend" y "Momentum" confirma una tendencia saludable. Los bloques rojos en "Volatility" suelen preceder a periodos de calma.
+*   **Riesgos:** Los modelos de IA son probabilísticos. Nunca utilice este terminal como única fuente de ejecución sin una gestión de stop-loss adecuada.
+
+---
+
+## 🚀 Instalación
 
 1.  Instala las dependencias: `pip install -r requirements.txt`
-2.  Ejecuta la interfaz: `streamlit run quant_dashboard_streamlit_app.py`
+2.  Ejecuta: `streamlit run quant_dashboard_streamlit_app.py`
 
 ---
-**Disclaimer:** *Este dashboard es una herramienta de análisis estadístico y no constituye una asesoría financiera. El trading de activos implica un alto riesgo de pérdida de capital.*
+**Disclaimer:** *Este dashboard es una herramienta de análisis estadístico y no constituye una asesoría financiera.*
