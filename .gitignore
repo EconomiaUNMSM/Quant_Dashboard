@@ -1,0 +1,28 @@
+# Entornos virtuales
+venv-quant/
+venv/
+env/
+.env
+
+# Python (archivos compilados y temporales)
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Streamlit (credenciales locales)
+.streamlit/credentials.toml
+
+# IDEs
+.vscode/
+.idea/
+
+# Sistemas operativos
+.DS_Store
+Thumbs.db
+
+# Datos y Logs
+*.log
+data/*.csv
+data/*.xlsx

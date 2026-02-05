@@ -1,0 +1,11 @@
+streamlit
+pandas
+numpy
+matplotlib
+yfinance
+hmmlearn
+scikit-learn
+transformers
+torch
+chronos-forecasting
+plotly
