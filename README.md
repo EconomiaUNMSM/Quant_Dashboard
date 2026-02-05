@@ -39,8 +39,10 @@ Utiliza una red neuronal **BERT (Bidirectional Encoder Representations from Tran
 
 *   **Cálculo del Sentiment Gap:** 
     *   Se extraen las probabilidades para cada clase: `[Positivo, Negativo, Neutral]`.
-    *   $\text{Gap} = (\text{Prob\_Pos} - \text{Prob\_Neg}) \times 100$.
+    *   $\text{Gap} = (\text{Prob}_{\text{Pos}} - \text{Prob}_{\text{Neg}}) \times 100$.
     *   Un valor de **100** indica optimismo absoluto, **-100** indica pánico absoluto.
+
+![Análisis Técnico y de Sentimiento](assets/deep_analysis.png)
 
 ---
 
@@ -72,6 +74,14 @@ El mapa de calor de intensidad utiliza el siguiente set de indicadores para la t
 *   **Confluencia Técnica:** Busque el "Triple Check": Régimen Bull (HMM) + Proyección alcista (Chronos) + Sentiment Gap > 10 (FinBERT).
 *   **Interpretación del Heatmap:** Un bloque verde uniforme en "Trend" y "Momentum" confirma una tendencia saludable. Los bloques rojos en "Volatility" suelen preceder a periodos de calma.
 *   **Riesgos:** Los modelos de IA son probabilísticos. Nunca utilice este terminal como única fuente de ejecución sin una gestión de stop-loss adecuada.
+
+---
+
+## 📄 Raw Data y Auditoría de Datos
+
+Transparencia total en los cálculos mediante el acceso a los datos crudos utilizados por los modelos y el histórico del activo.
+
+![Datos y Proyecciones](assets/raw_data.png)
 
 ---
 
