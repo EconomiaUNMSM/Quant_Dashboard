@@ -1,94 +1,98 @@
+[English](README.md) | [Español](README.es.md) | [Português](README.pt.md) | [中文](README.zh.md)
+
+---
+
 # 📊 Quant Terminal: HMM + Chronos + FinBERT
 
-Este proyecto es un **Dashboard Cuantitativo de Alto Rendimiento** diseñado para el análisis técnico, predictivo y de sentimiento de activos financieros. Combina arquitecturas de aprendizaje profundo (Deep Learning), modelos probabilísticos de estados ocultos (HMM) y procesamiento de lenguaje natural (NLP).
+This project is a **High-Performance Quantitative Dashboard** designed for technical, predictive, and sentiment analysis of financial assets. It combines Deep Learning architectures, probabilistic Hidden Markov Models (HMM), and Natural Language Processing (NLP).
 
-![Vista Principal del Dashboard](assets/dashboard_main.png)
+![Tool Demonstration](assets/video_muestra_1.gif)
 
 ---
 
-## 🛠 Arquitectura y Metodología Detallada
+## 🛠 Detailed Architecture & Methodology
 
-Para garantizar la transparencia en los cálculos, este terminal desglosa su metodología en tres capas de procesamiento:
+To ensure full transparency in calculations, this terminal breaks down its methodology into three processing layers:
 
-### 1. Detección de Regímenes (Hidden Markov Models)
-El modelo HMM segmenta el mercado basándose en la estructura estadística de los datos, no en reglas fijas de analistas.
+### 1. Regime Detection (Hidden Markov Models)
+The HMM model segments the market based on the statistical structure of the data, rather than fixed analyst rules.
 
-*   **Variables de Entrada (Features):**
-    *   `log_r`: Retornos Logarítmicos (captura cambios porcentuales continuos).
-    *   `range`: Rango Intra-periodo (High/Low - 1), indicador de volatilidad inmediata.
-    *   `abs_r`: Valor absoluto del retorno (fuerza del movimiento).
-    *   `vol_5`: Volatilidad de corto plazo (Std Dev de 5 periodos).
-*   **Algoritmo:** `GaussianHMM` con 3 componentes. Los estados se entrenan mediante el algoritmo de **Expectation-Maximization (Baum-Welch)**.
-*   **Alineación Automática:** Los estados se mapean automáticamente según el retorno medio:
-    *   **Bear (Bajista):** Estado con el retorno medio más bajo.
-    *   **Bull (Alcista):** Estado con el retorno medio más alto.
-    *   **Side (Lateral):** Estado intermedio.
-*   **Validación Walk-Forward:** El modelo se re-entrena periódicamente (ventana móvil) para adaptarse a cambios estructurales ("Structural Breaks") en el mercado.
+*   **Input Variables (Features):**
+    *   `log_r`: Logarithmic Returns (captures continuous percentage changes).
+    *   `range`: Intra-period Range (High/Low - 1), an indicator of immediate volatility.
+    *   `abs_r`: Absolute value of the return (strength of the movement).
+    *   `vol_5`: Short-term volatility (5-period Std Dev).
+*   **Algorithm:** `GaussianHMM` with 3 components. States are trained using the **Expectation-Maximization (Baum-Welch)** algorithm.
+*   **Automatic Alignment:** States are automatically mapped according to the mean return:
+    *   **Bear:** State with the lowest mean return.
+    *   **Bull:** State with the highest mean return.
+    *   **Side:** Intermediate state.
+*   **Walk-Forward Validation:** The model is periodically retrained (rolling window) to adapt to structural breaks in the market.
 
-### 2. Predicción Probabilística (Chronos)
-**Chronos** es una arquitectura Transformer de Amazon diseñada para tratar las series temporales como un lenguaje.
+### 2. Probabilistic Prediction (Chronos)
+**Chronos** is a Transformer architecture by Amazon designed to treat time series like a language.
 
-![Modelo HMM y Chronos](assets/hmm_chronos.png)
+![HMM and Chronos Model](assets/hmm_chronos.png)
 
-*   **Metodología:** El precio se cuantiza en tokens y el modelo predice la distribución de probabilidad del siguiente valor.
-*   **Zero-Shot Learning:** No depende de patrones clásicos (como cabeza-hombros); entiende la dinámica temporal intrínseca a gran escala.
-*   **Incertidumbre:** El área sombreada en el gráfico representa las bandas de confianza (cuantiles 10% y 90%). Si las bandas son estrechas, el modelo tiene alta confianza en la trayectoria.
+*   **Methodology:** The price is quantized into tokens and the model predicts the probability distribution of the next value.
+*   **Zero-Shot Learning:** Doesn't rely on classic patterns (like head-and-shoulders); understands large-scale intrinsic temporal dynamics.
+*   **Uncertainty:** The shaded area on the chart represents confidence bands (10% and 90% quantiles). If the bands are narrow, the model has high confidence in the trajectory.
 
-### 3. NLP de Grado Institucional (FinBERT)
-Utiliza una red neuronal **BERT (Bidirectional Encoder Representations from Transformers)** pre-entrenada con millones de documentos financieros.
+### 3. Institutional-Grade NLP (FinBERT)
+Utilizes a **BERT (Bidirectional Encoder Representations from Transformers)** neural network pre-trained with millions of financial documents.
 
-*   **Cálculo del Sentiment Gap:** 
-    *   Se extraen las probabilidades para cada clase: `[Positivo, Negativo, Neutral]`.
+*   **Sentiment Gap Calculation:** 
+    *   Probabilities for each class are extracted: `[Positive, Negative, Neutral]`.
     *   $\text{Gap} = (\text{Prob}_{\text{Pos}} - \text{Prob}_{\text{Neg}}) \times 100$.
-    *   Un valor de **100** indica optimismo absoluto, **-100** indica pánico absoluto.
+    *   A value of **100** indicates absolute optimism, **-100** indicates absolute panic.
 
-![Análisis Técnico y de Sentimiento](assets/deep_analysis.png)
+![Technical and Sentiment Analysis](assets/deep_analysis.png)
 
 ---
 
-## 🌡️ Transparencia de Indicadores (Heatmap)
+## 🌡️ Indicator Transparency (Heatmap)
 
-El mapa de calor de intensidad utiliza el siguiente set de indicadores para la toma de decisiones:
+The intensity heatmap uses the following set of indicators for decision-making:
 
-| Categoría | Indicador | Cálculo Base |
+| Category | Indicator | Base Calculation |
 | :--- | :--- | :--- |
-| **Momentum** | RSI (14) | Índice de Fuerza Relativa (Wilder). |
-| | ROC (12) | Rate of Change de 12 periodos. |
-| | Stochastic K | Oscilador Estocástico (14, 3). |
-| | MACD Hist | Diferencia entre la línea MACD y su señal. |
+| **Momentum** | RSI (14) | Relative Strength Index (Wilder). |
+| | ROC (12) | 12-period Rate of Change. |
+| | Stochastic K | Stochastic Oscillator (14, 3). |
+| | MACD Hist | Difference between the MACD line and its signal. |
 | **Volatility** | ATR (14) | Average True Range. |
-| | Realized Vol | Desviación estándar móvil de los retornos. |
-| | BB Width | Ancho de las Bandas de Bollinger (normalizado). |
-| | Parkinson | Volatilidad basada en High/Low (más sensible que la de cierre). |
-| **Trend** | EMA (20) | Media Móvil Exponencial rápida. |
-| | ADX (14) | Average Directional Index (fuerza de la tendencia). |
-| | Price vs EM | Posición del precio respecto a su media. |
-| **Volume** | Vol/MA20 | Volumen actual vs promedio de 20 días. |
-| | OBV Change | Variación del On-Balance Volume. |
-| | Vol Spike | Detección de picos inusuales de volumen. |
+| | Realized Vol | Moving standard deviation of returns. |
+| | BB Width | Bollinger Bands Width (normalized). |
+| | Parkinson | Volatility based on High/Low (more sensitive than close-based). |
+| **Trend** | EMA (20) | Fast Exponential Moving Average. |
+| | ADX (14) | Average Directional Index (trend strength). |
+| | Price vs EM | Price position relative to its moving average. |
+| **Volume** | Vol/MA20 | Current volume vs 20-day average. |
+| | OBV Change | On-Balance Volume variation. |
+| | Vol Spike | Detection of unusual volume spikes. |
 
 ---
 
-## 💡 Estrategias de Uso y Recomendaciones
+## 💡 Usage Strategies & Recommendations
 
-*   **Confluencia Técnica:** Busque el "Triple Check": Régimen Bull (HMM) + Proyección alcista (Chronos) + Sentiment Gap > 10 (FinBERT).
-*   **Interpretación del Heatmap:** Un bloque verde uniforme en "Trend" y "Momentum" confirma una tendencia saludable. Los bloques rojos en "Volatility" suelen preceder a periodos de calma.
-*   **Riesgos:** Los modelos de IA son probabilísticos. Nunca utilice este terminal como única fuente de ejecución sin una gestión de stop-loss adecuada.
-
----
-
-## 📄 Raw Data y Auditoría de Datos
-
-Transparencia total en los cálculos mediante el acceso a los datos crudos utilizados por los modelos y el histórico del activo.
-
-![Datos y Proyecciones](assets/raw_data.png)
+*   **Technical Confluence:** Look for the "Triple Check": Bull Regime (HMM) + Bullish Projection (Chronos) + Sentiment Gap > 10 (FinBERT).
+*   **Heatmap Interpretation:** A uniform green block in "Trend" and "Momentum" confirms a healthy trend. Red blocks in "Volatility" usually precede periods of calm.
+*   **Risks:** AI models are probabilistic. Never use this terminal as your sole execution source without proper stop-loss management.
 
 ---
 
-## 🚀 Instalación
+## 📄 Raw Data & Data Auditing
 
-1.  Instala las dependencias: `pip install -r requirements.txt`
-2.  Ejecuta: `streamlit run quant_dashboard_streamlit_app.py`
+Total calculation transparency through access to the raw data used by the models and the asset's historical behavior.
+
+![Data and Projections](assets/raw_data.png)
 
 ---
-**Disclaimer:** *Este dashboard es una herramienta de análisis estadístico y no constituye una asesoría financiera.*
+
+## 🚀 Installation
+
+1.  Install dependencies: `pip install -r requirements.txt`
+2.  Run: `streamlit run quant_dashboard_streamlit_app.py`
+
+---
+**Disclaimer:** *This dashboard is a statistical analysis tool and does not constitute financial advice.*

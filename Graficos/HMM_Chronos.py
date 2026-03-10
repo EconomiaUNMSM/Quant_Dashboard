@@ -496,7 +496,12 @@ if __name__ == "__main__":
 
     # Importar Librerías Propias
     import sys 
-    sys.path.append(r"C:\Users\LUIS\Desktop\App_trading")
+    import os
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    parent_dir = os.path.dirname(current_dir)
+    grandparent_dir = os.path.dirname(parent_dir)
+    if grandparent_dir not in sys.path:
+        sys.path.append(grandparent_dir)
     from Quant_General.Moldelos_Base.Chronos import *
     from Quant_General.Moldelos_Base.HMM import *
 
